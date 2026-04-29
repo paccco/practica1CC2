@@ -40,7 +40,33 @@ Se han implementado volúmenes de datos con el sufijo `:z` para garantizar la co
 ## 4. Instrucciones de Despliegue
 
 1.  **Configurar variables de entorno:** Cree un archivo `.env` basado en `.env.example` con sus puertos asignados y contraseñas.
-2.  **Lanzar la infraestructura:** Ejecute el siguiente comando para levantar todos los servicios en segundo plano:
+```
+# Rango de puertos asignado (20011 - 20020)
+PORT_OWNCLOUD=20011
+PORT_LDAP=20012
+PORT_LDAP_SSL=20013
+PORT_MARIADB=20014
+PORT_STATS=20015
+
+# Secretos de Base de Datos
+DB_ROOT_PASS=root_secure_pass
+DB_USER=owncloud_db_user
+DB_PASS=owncloud_secure_pass
+DB_NAME=owncloud_db
+
+# Secretos de LDAP
+LDAP_ADMIN_PASS=admin_ldap_pass
+LDAP_DOMAIN=example.org
+LDAP_ORG="empresa"
+
+# Secretos owncloud
+# --- OJO se que esto no es seguro pero lo hago
+# porque estamos en una práctica ------
+OWNCLOUD_TRUSTED_DOMAINS=*
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+```
+3.  **Lanzar la infraestructura:** Ejecute el siguiente comando para levantar todos los servicios en segundo plano:
 
 ```bash
 podman-compose up -d
