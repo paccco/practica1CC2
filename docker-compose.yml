@@ -1,0 +1,80 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: mariadb_server
+    restart: always
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    volumes:
+      - ./mariadb/data:/var/lib/mysql:z
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_server
+    restart: always
+
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: ldap_server
+    restart: always
+    environment:
+      LDAP_ORGANISATION: ${LDAP_ORG}
+      LDAP_DOMAIN: ${LDAP_DOMAIN}
+      LDAP_ADMIN_PASSWORD: ${LDAP_ADMIN_PASS}
+    ports:
+      - "${PORT_LDAP}:389"
+      - "${PORT_LDAP_SSL}:636"
+    volumes:
+      - ./ldap/db:/var/lib/ldap:z
+      - ./ldap/config:/etc/ldap/slapd.d:z
+
+  owncloud1:
+    image: owncloud:10.0.10
+    container_name: oc_replica_1
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - ldap
+    environment: &oc-env #Esto es un alias
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=${DB_NAME}
+      - OWNCLOUD_DB_USERNAME=${DB_USER}
+      - OWNCLOUD_DB_PASSWORD=${DB_PASS}
+      - OWNCLOUD_DB_HOST=db
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=redis
+      - OWNCLOUD_TRUSTED_DOMAINS=${OWNCLOUD_TRUSTED_DOMAINS}
+      - OWNCLOUD_ADMIN_USERNAME=${ADMIN_USERNAME}
+      - OWNCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - OWNCLOUD_SKIP_CHOWN=true
+    volumes: &oc-volumes # Igual que para env
+      - ./owncloud/data:/var/www/html/data:z
+      - ./owncloud/config:/var/www/html/config:z
+
+  owncloud2:
+    image: owncloud:10.0.10
+    container_name: oc_replica_2
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - ldap
+    environment: *oc-env
+    volumes: *oc-volumes
+
+  haproxy:
+    image: haproxytech/haproxy-alpine:2.4
+    container_name: haproxy_balancer
+    restart: always
+    ports:
+      - "${PORT_OWNCLOUD}:80"
+      - "${PORT_STATS}:8404"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro,z
+    depends_on:
+      - owncloud1
+      - owncloud2

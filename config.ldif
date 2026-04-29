@@ -1,0 +1,38 @@
+# 1. Unidad Organizativa para Usuarios
+dn: ou=People,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: People
+description: Unidad para los usuarios de la organizacion
+
+# 2. Usuario Individual: alumno
+dn: uid=alumno,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+objectClass: shadowAccount
+cn: alumno
+sn: Apellido
+uid: alumno
+uidNumber: 1001
+gidNumber: 5001
+homeDirectory: /home/alumno
+loginShell: /bin/bash
+gecos: Usuario de Practicas
+userPassword: {crypt}x
+mail: alumno@example.org
+
+# 3. Unidad Organizativa para Grupos
+dn: ou=Groups,dc=example,dc=org
+objectClass: organizationalUnit
+objectClass: top
+ou: Groups
+description: Unidad para los grupos de la organizacion
+
+# 4. Grupo: alumnos
+dn: cn=alumnos,ou=Groups,dc=example,dc=org
+objectClass: posixGroup
+objectClass: top
+cn: alumnos
+gidNumber: 5001
+memberUid: alumno
