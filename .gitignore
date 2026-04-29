@@ -1,0 +1,4 @@
+.env
+ldap/
+mariadb/
+owncloud/
