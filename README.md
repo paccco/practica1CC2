@@ -178,8 +178,6 @@ La pesta√±a grupos para que se vea el grupo creado en mi ldif en el apartado 'S√
 
 ### Redis
 
-```
-### Redis
 ```yaml
 redis:
     image: redis:7.2-alpine
