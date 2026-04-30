@@ -70,3 +70,87 @@ ADMIN_PASSWORD=admin
 
 ```bash
 podman-compose up -d
+```
+
+## Configuración del Stack (docker-compose.yml)
+### SGBD(MariaDB)
+```yaml
+mariadb:
+  image: mariadb:10.6
+  container_name: mariadb_server
+  environment:
+    - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    - MYSQL_DATABASE=owncloud
+    - MYSQL_USER=owncloud
+    - MYSQL_PASSWORD=${DB_PASSWORD}
+  volumes:
+    - ./mariadb/data:/var/lib/mysql:z
+  restart: always
+```
+### LDAP
+```yaml
+ldap:
+  image: osixia/openldap:1.5.0
+  container_name: ldap_server
+  environment:
+    - LDAP_ORGANISATION=UGR
+    - LDAP_DOMAIN=ugr.es
+    - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD}
+  volumes:
+    - ./ldap/db:/var/lib/ldap:z
+    - ./ldap/config:/etc/ldap/slapd.d:z
+```
+### Owncloud
+```yaml
+owncloud1:
+    image: owncloud:10.0.10
+    container_name: oc_replica_1
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - ldap
+    environment: &oc-env #Esto es un alias
+      - OWNCLOUD_DB_TYPE=mysql
+      - OWNCLOUD_DB_NAME=${DB_NAME}
+      - OWNCLOUD_DB_USERNAME=${DB_USER}
+      - OWNCLOUD_DB_PASSWORD=${DB_PASS}
+      - OWNCLOUD_DB_HOST=db
+      - OWNCLOUD_REDIS_ENABLED=true
+      - OWNCLOUD_REDIS_HOST=redis
+      - OWNCLOUD_TRUSTED_DOMAINS=${OWNCLOUD_TRUSTED_DOMAINS}
+      - OWNCLOUD_ADMIN_USERNAME=${ADMIN_USERNAME}
+      - OWNCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - OWNCLOUD_SKIP_CHOWN=true
+    volumes: &oc-volumes # Igual que para env
+      - ./owncloud/data:/var/www/html/data:z
+      - ./owncloud/config:/var/www/html/config:z
+
+  owncloud2:
+    image: owncloud:10.0.10
+    container_name: oc_replica_2
+    restart: always
+    depends_on:
+      - db
+      - redis
+      - ldap
+    environment: *oc-env
+    volumes: *oc-volumes
+```
+Se ha intentado implementar la creacion dinamica de réplicas usando 'duplicate: 2' de esta forma podman levantaría 2 servicios con los mismos parámetros pero generaría nombres automáticos (owncloud_1,owncloud_2,etc), pero surgieron varios problemas con HAProxy por eso se configuró finalmente de forma estática.
+
+### HAProxy
+```yaml
+  haproxy:
+    image: haproxytech/haproxy-alpine:2.4
+    container_name: haproxy_balancer
+    restart: always
+    ports:
+      - "${PORT_OWNCLOUD}:80"
+      - "${PORT_STATS}:8404"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro,z
+    depends_on:
+      - owncloud1
+      - owncloud2
+```
