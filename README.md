@@ -175,3 +175,20 @@ La pestaña grupos para que se vea el grupo creado en mi ldif en el apartado 'S�
       - owncloud1
       - owncloud2
 ```
+4. ## Conclusiones
+El despliegue bajo el Escenario 2 garantiza que el servicio de almacenamiento no dependa de un único punto de fallo en la capa de aplicación. La integración con LDAP permite una escalabilidad administrativa adecuada para una empresa mediana, mientras que Redis asegura que la concurrencia de usuarios no degrade el rendimiento del sistema de archivos.
+
+5. ## Bibliografía
+LDAP
+
+    https://www.openldap.org/doc/admin26/quickstart.html
+    https://computingforgeeks.com/run-openldap-server-in-docker-containers/#google_vignette
+    https://github.com/osixia/docker-openldap
+
+HAProxy 2.4
+
+    http://docs.haproxy.org/2.4/intro.html
+
+Owncloud
+
+    https://doc.owncloud.com/server/next/admin_manual/configuration/user/user_auth_ldap.html
