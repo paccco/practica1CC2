@@ -175,6 +175,18 @@ La pestaña grupos para que se vea el grupo creado en mi ldif en el apartado 'S�
       - owncloud1
       - owncloud2
 ```
+
+### Redis
+
+```
+### Redis
+```yaml
+redis:
+    image: redis:7.2-alpine
+    container_name: redis_server
+    restart: always
+```
+
 4. ## Conclusiones
 El despliegue bajo el Escenario 2 garantiza que el servicio de almacenamiento no dependa de un único punto de fallo en la capa de aplicación. La integración con LDAP permite una escalabilidad administrativa adecuada para una empresa mediana, mientras que Redis asegura que la concurrencia de usuarios no degrade el rendimiento del sistema de archivos.
 
