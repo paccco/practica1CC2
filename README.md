@@ -145,6 +145,20 @@ Para configurar ldap nos vamos arriba a la izquierda le damos al botón y vamos 
 2. DN de usuario: cn=admin,dc=example,dc=org en mi caso.
 3. Contraseña: la que tenemos en el .env (admin_ldap_pass en mi caso).
 4. Base DN: dc=example,dc=org en mi caso.
+5. Probamos conexión y seguimos
+
+Parte de usuarios:
+
+1. Sólo estas clases de objetos: seleccionamos inetOrgPerson para ver las personas creadas en el ldif
+2. El filtro es opcionak
+3. Comprobamos y seguimos
+
+Parte atributos inicio de sesión, para decirle a ldap que debe comparar para inicio de sesión con los usuarios:
+
+1. Nombre de usuario LDAP/AD: Debe estar marcado
+2. Debe quedar así la consulta de abajo (&(|(objectclass=inetOrgPerson))(uid=%uid))
+
+La pestaña grupos para que se vea el grupo creado en mi ldif en el apartado 'Sólo estas clases de objetos' selecionamos 'posixGroup'.
 
 ### HAProxy
 ```yaml
