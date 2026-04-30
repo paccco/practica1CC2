@@ -139,6 +139,13 @@ owncloud1:
 ```
 Se ha intentado implementar la creacion dinamica de réplicas usando 'duplicate: 2' de esta forma podman levantaría 2 servicios con los mismos parámetros pero generaría nombres automáticos (owncloud_1,owncloud_2,etc), pero surgieron varios problemas con HAProxy por eso se configuró finalmente de forma estática.
 
+Para configurar ldap nos vamos arriba a la izquierda le damos al botón y vamos a la parte dde market. Buscamos la extensión 'LDAP integration' la instalamos. Nos vamos arriba a la derecha donde el nombre de usuario pulsamos para que aparezca el desplegable, se selecciona ajustes. En el menú de la izquierda vamos a administración de usuarios y nos aparecerá el apartado para configurar LDAP. Seguimos estos pasos para el apartado servidor:
+
+1. Ponemos el dominio del servidor (ldap_server en mi caso) y le damos a detectar puerto para rellenarlo automaticamente.
+2. DN de usuario: cn=admin,dc=example,dc=org en mi caso.
+3. Contraseña: la que tenemos en el .env (admin_ldap_pass en mi caso).
+4. Base DN: dc=example,dc=org en mi caso.
+
 ### HAProxy
 ```yaml
   haproxy:
